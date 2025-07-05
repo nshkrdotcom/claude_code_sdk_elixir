@@ -64,6 +64,18 @@ defmodule ClaudeCodeSDK.Process do
     # Build the command - for erlexec, stdin is passed as part of the command args, not exec options
     {cmd, _cmd_args} = build_claude_command(args, options, stdin_input)
 
+    # Debug output if verbose mode is enabled
+    if options.verbose do
+      IO.puts("\n🔍 [DEBUG] Raw CLI command:")
+      IO.puts("   #{cmd}")
+
+      if stdin_input do
+        IO.puts("   STDIN: #{inspect(stdin_input, limit: 100)}")
+      end
+
+      IO.puts("")
+    end
+
     # Build exec options with working directory if specified
     exec_options = build_exec_options(options)
 

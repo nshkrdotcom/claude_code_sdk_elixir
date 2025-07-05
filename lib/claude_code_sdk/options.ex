@@ -22,6 +22,7 @@ defmodule ClaudeCodeSDK.Options do
   - `executable_args` - Arguments for custom executable (list of strings)
   - `path_to_claude_code_executable` - Path to Claude Code CLI (string)
   - `abort_ref` - Reference for aborting requests (reference)
+  - `async` - Force async streaming mode (boolean)
 
   ## Examples
 
@@ -57,7 +58,8 @@ defmodule ClaudeCodeSDK.Options do
     :executable,
     :executable_args,
     :path_to_claude_code_executable,
-    :abort_ref
+    :abort_ref,
+    :async
   ]
 
   @type output_format :: :text | :json | :stream_json
@@ -78,7 +80,8 @@ defmodule ClaudeCodeSDK.Options do
           executable: String.t() | nil,
           executable_args: [String.t()] | nil,
           path_to_claude_code_executable: String.t() | nil,
-          abort_ref: reference() | nil
+          abort_ref: reference() | nil,
+          async: boolean() | nil
         }
 
   @doc """

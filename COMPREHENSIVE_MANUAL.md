@@ -30,6 +30,7 @@ The Claude Code SDK for Elixir provides a native Elixir interface to Claude Code
 - **Message System**: Complete message parsing with types `:system`, `:user`, `:assistant`, `:result`
 - **Options Configuration**: Full `ClaudeCodeSDK.Options` struct with CLI argument mapping
 - **Process Management**: Robust subprocess handling using erlexec
+- **Async Streaming**: Real-time message streaming with `ProcessAsync` module
 - **JSON Processing**: Custom JSON parser (`ClaudeCodeSDK.JSON`) without external dependencies
 - **Authentication**: Seamless CLI authentication delegation
 - **Stream Processing**: Efficient lazy evaluation with Elixir Streams
@@ -77,7 +78,8 @@ All sections marked with **(FUTURE/PLANNED)** represent planned functionality in
 
 - **`ClaudeCodeSDK`**: Main public API interface
 - **`ClaudeCodeSDK.Query`**: Query construction and execution
-- **`ClaudeCodeSDK.Process`**: Subprocess management with erlexec
+- **`ClaudeCodeSDK.Process`**: Synchronous subprocess management with erlexec
+- **`ClaudeCodeSDK.ProcessAsync`**: Asynchronous real-time streaming with erlexec
 - **`ClaudeCodeSDK.Message`**: Message parsing and type definitions
 - **`ClaudeCodeSDK.Options`**: Configuration and CLI argument building
 - **`ClaudeCodeSDK.JSON`**: Custom JSON parsing without external dependencies

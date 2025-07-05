@@ -9,7 +9,7 @@ defmodule ClaudeCodeSDK.Query do
   All functions in this module return a Stream of `ClaudeCodeSDK.Message` structs.
   """
 
-  alias ClaudeCodeSDK.{Options, Process}
+  alias ClaudeCodeSDK.{Options, Process, ProcessAsync}
 
   @doc """
   Runs a new query with the given prompt and options.
@@ -31,7 +31,12 @@ defmodule ClaudeCodeSDK.Query do
   @spec run(String.t(), Options.t()) :: Enumerable.t(ClaudeCodeSDK.Message.t())
   def run(prompt, %Options{} = options) do
     {args, stdin_prompt} = build_args(prompt, options)
-    Process.stream(args, options, stdin_prompt)
+    # Use async streaming if enabled or if stream_json output format
+    if use_async_streaming?(options) do
+      ProcessAsync.stream(args, options, stdin_prompt)
+    else
+      Process.stream(args, options, stdin_prompt)
+    end
   end
 
   @doc """
@@ -62,7 +67,12 @@ defmodule ClaudeCodeSDK.Query do
         ["--continue"] ++ base_args
       end
 
-    Process.stream(args, options, prompt)
+    # Use async streaming if enabled or if stream_json output format
+    if use_async_streaming?(options) do
+      ProcessAsync.stream(args, options, prompt)
+    else
+      Process.stream(args, options, prompt)
+    end
   end
 
   @doc """
@@ -95,12 +105,24 @@ defmodule ClaudeCodeSDK.Query do
         ["--resume", session_id] ++ base_args
       end
 
-    Process.stream(args, options, prompt)
+    # Use async streaming if enabled or if stream_json output format
+    if use_async_streaming?(options) do
+      ProcessAsync.stream(args, options, prompt)
+    else
+      Process.stream(args, options, prompt)
+    end
   end
 
   defp build_args(prompt, options) do
     # Add --print to run non-interactively
     # The prompt needs to be passed separately since --print expects stdin input
     {["--print"] ++ Options.to_args(options), prompt}
+  end
+
+  defp use_async_streaming?(%Options{output_format: :stream_json}), do: true
+  defp use_async_streaming?(%Options{async: true}), do: true
+
+  defp use_async_streaming?(_options) do
+    Application.get_env(:claude_code_sdk, :async_streaming, false)
   end
 end

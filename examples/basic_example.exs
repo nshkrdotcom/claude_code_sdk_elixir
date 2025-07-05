@@ -22,41 +22,42 @@ defmodule BasicExample do
     options = OptionBuilder.merge(:development, %{max_turns: 10})
 
     # Make a simple query
-    response = ClaudeCodeSDK.query("""
+    IO.puts("\n📝 Claude's Response:")
+    IO.puts("=" |> String.duplicate(60))
+    
+    ClaudeCodeSDK.query("""
     Write a simple Elixir function that calculates the factorial of a number.
     Include proper documentation and a basic example of how to use it.
     Keep it concise and clear.
     """, options)
-    |> extract_response()
-
-    IO.puts("\n📝 Claude's Response:")
-    IO.puts("=" |> String.duplicate(60))
-    IO.puts(response)
-    IO.puts("=" |> String.duplicate(60))
+    |> stream_response()
+    
+    IO.puts("\n" <> "=" |> String.duplicate(60))
     IO.puts("✅ Example complete!")
   end
 
-  defp extract_response(stream) do
-    messages = Enum.to_list(stream)
-
-    # Check for errors first
-    error_msg = Enum.find(messages, & &1.type == :result and &1.subtype != :success)
-    if error_msg do
-      IO.puts("\n❌ Error (#{error_msg.subtype}):")
-      if Map.has_key?(error_msg.data, :error) do
-        IO.puts(error_msg.data.error)
-      else
-        IO.puts(inspect(error_msg.data))
+  defp stream_response(stream) do
+    stream
+    |> Enum.each(fn message ->
+      case message do
+        %{type: :result, subtype: subtype} when subtype != :success ->
+          IO.puts("\n❌ Error (#{subtype}):")
+          if Map.has_key?(message.data, :error) do
+            IO.puts(message.data.error)
+          else
+            IO.puts(inspect(message.data))
+          end
+          System.halt(1)
+          
+        %{type: :assistant} ->
+          text = ContentExtractor.extract_text(message)
+          if text, do: IO.write(text)
+          
+        _ ->
+          # Ignore other message types for now
+          :ok
       end
-      System.halt(1)
-    end
-
-    # Extract assistant content
-    messages
-    |> Enum.filter(&(&1.type == :assistant))
-    |> Enum.map(&ContentExtractor.extract_text/1)
-    |> Enum.filter(&(&1 != nil))
-    |> Enum.join("\n")
+    end)
   end
 end
 

@@ -99,6 +99,7 @@ mix deps.get
 - **Authentication**: CLI delegation with status checking and diagnostics
 - **Error Handling**: Improved error detection and timeout handling
 - **Stream Processing**: Lazy evaluation with Elixir Streams
+- **Real-time Streaming**: New async mode for true real-time message streaming
 - **Mocking System**: Comprehensive testing without API calls (supports stdin workflows)
 - **Code Quality**: Full dialyzer and credo compliance with refactored complex functions
 - **Developer Tools**: ContentExtractor, AuthChecker, OptionBuilder, DebugMode
@@ -360,7 +361,8 @@ Configure requests with `ClaudeCodeSDK.Options` or use smart presets:
   system_prompt: "Custom...", # Override system prompt
   output_format: :stream_json,# Output format
   verbose: true,              # Enable verbose logging
-  cwd: "/path/to/project"     # Working directory
+  cwd: "/path/to/project",    # Working directory
+  async_streaming: true       # Use real-time streaming (default: true)
 }
 
 # Smart presets with OptionBuilder
@@ -475,8 +477,34 @@ The SDK works by:
 Key benefits:
 - ✅ Uses existing CLI authentication
 - ✅ Efficient streaming processing
+- ✅ Real-time message streaming with async mode
 - ✅ No external JSON dependencies
 - ✅ Robust subprocess management with erlexec
+
+### Streaming Modes
+
+The SDK offers two streaming modes:
+
+1. **Synchronous Mode** (`Process` module) - Default when `async_streaming: false`
+   - Collects all output before parsing
+   - More reliable for batch processing
+   - Better error handling for malformed JSON
+   - Simpler debugging
+
+2. **Asynchronous Mode** (`ProcessAsync` module) - Default when `async_streaming: true`
+   - Real-time message streaming as they arrive
+   - Lower latency for interactive applications
+   - True streaming experience
+   - Better for long-running queries
+
+Configure via options:
+```elixir
+# Use sync mode (more reliable)
+ClaudeCodeSDK.query("prompt", %{async_streaming: false})
+
+# Use async mode (real-time, default)
+ClaudeCodeSDK.query("prompt", %{async_streaming: true})
+```
 
 ## Troubleshooting
 
