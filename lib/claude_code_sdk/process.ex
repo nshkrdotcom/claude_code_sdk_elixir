@@ -167,7 +167,7 @@ defmodule ClaudeCodeSDK.Process do
          os_pid,
          stdout_acc,
          stderr_acc,
-         options \\ %ClaudeCodeSDK.Options{}
+         options
        ) do
     receive do
       {:stdout, ^os_pid, data} ->

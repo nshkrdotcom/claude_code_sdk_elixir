@@ -7,6 +7,7 @@ defmodule ClaudeCodeSDK.ProcessAsync do
   """
 
   alias ClaudeCodeSDK.{Message, Options}
+  alias ClaudeCodeSDK.Mock.ProcessAsync, as: MockProcessAsync
 
   @doc """
   Streams messages from Claude Code CLI using erlexec in async mode.
@@ -19,7 +20,7 @@ defmodule ClaudeCodeSDK.ProcessAsync do
   def stream(args, %Options{} = options, stdin_input \\ nil) do
     # Check if we should use mock
     if use_mock?() do
-      ClaudeCodeSDK.Mock.ProcessAsync.stream(args, options, stdin_input)
+      MockProcessAsync.stream(args, options, stdin_input)
     else
       stream_real(args, options, stdin_input)
     end
@@ -95,7 +96,7 @@ defmodule ClaudeCodeSDK.ProcessAsync do
     base_opts = [
       # Redirect stdout to this process
       {:stdout, self()},
-      # Redirect stderr to this process  
+      # Redirect stderr to this process
       {:stderr, self()},
       # Monitor the process
       :monitor
@@ -141,7 +142,7 @@ defmodule ClaudeCodeSDK.ProcessAsync do
         {messages, remaining_buffer} = parse_json_lines(new_buffer)
 
         # Check for final message
-        if Enum.any?(messages, &is_final_message?/1) do
+        if Enum.any?(messages, &final_message?/1) do
           {messages, %{state | done: true, buffer: ""}}
         else
           # Continue receiving
@@ -221,15 +222,13 @@ defmodule ClaudeCodeSDK.ProcessAsync do
     end
   end
 
-  defp is_final_message?(%Message{type: :result}), do: true
-  defp is_final_message?(_), do: false
+  defp final_message?(%Message{type: :result}), do: true
+  defp final_message?(_), do: false
 
   defp cleanup_process(%{exec_pid: pid}) do
-    try do
-      :exec.stop(pid)
-    catch
-      _, _ -> :ok
-    end
+    :exec.stop(pid)
+  catch
+    _, _ -> :ok
   end
 
   defp cleanup_process(_state) do
@@ -258,10 +257,10 @@ defmodule ClaudeCodeSDK.ProcessAsync do
   end
 
   defp ensure_json_flags(args) do
-    if "--output-format" not in args do
-      args ++ ["--output-format", "stream-json", "--verbose"]
-    else
+    if "--output-format" in args do
       args
+    else
+      args ++ ["--output-format", "stream-json", "--verbose"]
     end
   end
 

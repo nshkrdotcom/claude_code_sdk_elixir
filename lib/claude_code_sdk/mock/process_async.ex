@@ -77,7 +77,7 @@ defmodule ClaudeCodeSDK.Mock.ProcessAsync do
     receive do
       {:mock_message, message} ->
         # Check if this is a final message
-        if is_final_message?(message) do
+        if final_message?(message) do
           {[message], %{state | done: true}}
         else
           # Queue the message and continue
@@ -155,6 +155,6 @@ defmodule ClaudeCodeSDK.Mock.ProcessAsync do
     end
   end
 
-  defp is_final_message?(%Message{type: :result}), do: true
-  defp is_final_message?(_), do: false
+  defp final_message?(%Message{type: :result}), do: true
+  defp final_message?(_), do: false
 end
