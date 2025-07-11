@@ -59,7 +59,8 @@ defmodule ClaudeCodeSDK.Options do
     :executable_args,
     :path_to_claude_code_executable,
     :abort_ref,
-    :async
+    :async,
+    :timeout_ms
   ]
 
   @type output_format :: :text | :json | :stream_json
@@ -81,7 +82,8 @@ defmodule ClaudeCodeSDK.Options do
           executable_args: [String.t()] | nil,
           path_to_claude_code_executable: String.t() | nil,
           abort_ref: reference() | nil,
-          async: boolean() | nil
+          async: boolean() | nil,
+          timeout_ms: integer() | nil
         }
 
   @doc """

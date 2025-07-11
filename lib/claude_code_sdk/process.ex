@@ -46,6 +46,10 @@ defmodule ClaudeCodeSDK.Process do
     Application.get_env(:claude_code_sdk, :use_mock, false)
   end
 
+  defp get_timeout_ms(options) do
+    options.timeout_ms || Application.get_env(:pipeline, :timeout_seconds, 300) * 1000
+  end
+
   defp stream_real(args, options, stdin_input) do
     Stream.resource(
       fn -> start_claude_process(args, options, stdin_input) end,
@@ -134,7 +138,7 @@ defmodule ClaudeCodeSDK.Process do
         :exec.send(pid, :eof)
 
         # Collect output until process exits
-        receive_exec_output(pid, os_pid, [], [])
+        receive_exec_output(pid, os_pid, [], [], options)
 
       {:error, reason} ->
         formatted_error = format_error_message(reason, options)
@@ -158,7 +162,13 @@ defmodule ClaudeCodeSDK.Process do
     end
   end
 
-  defp receive_exec_output(pid, os_pid, stdout_acc, stderr_acc) do
+  defp receive_exec_output(
+         pid,
+         os_pid,
+         stdout_acc,
+         stderr_acc,
+         options \\ %ClaudeCodeSDK.Options{}
+       ) do
     receive do
       {:stdout, ^os_pid, data} ->
         # Check for challenge URL in the output
@@ -192,7 +202,7 @@ defmodule ClaudeCodeSDK.Process do
             done: false
           }
         else
-          receive_exec_output(pid, os_pid, [data | stdout_acc], stderr_acc)
+          receive_exec_output(pid, os_pid, [data | stdout_acc], stderr_acc, options)
         end
 
       {:stderr, ^os_pid, data} ->
@@ -227,7 +237,7 @@ defmodule ClaudeCodeSDK.Process do
             done: false
           }
         else
-          receive_exec_output(pid, os_pid, stdout_acc, [data | stderr_acc])
+          receive_exec_output(pid, os_pid, stdout_acc, [data | stderr_acc], options)
         end
 
       {:DOWN, ^os_pid, :process, ^pid, _exit_status} ->
@@ -248,15 +258,16 @@ defmodule ClaudeCodeSDK.Process do
           done: false
         }
     after
-      30_000 ->
-        # Timeout after 30 seconds
+      get_timeout_ms(options) ->
+        # Timeout based on options
+        timeout_seconds = get_timeout_ms(options) / 1000
         :exec.stop(pid)
 
         error_msg = %Message{
           type: :result,
           subtype: :error_during_execution,
           data: %{
-            error: "Command timed out after 30 seconds",
+            error: "Command timed out after #{timeout_seconds} seconds",
             session_id: "error",
             is_error: true
           }
