@@ -357,6 +357,8 @@ Configure requests with `ClaudeCodeSDK.Options` or use smart presets:
 ```elixir
 # Manual configuration
 %ClaudeCodeSDK.Options{
+  model: "sonnet",            # Model selection ("sonnet", "opus", specific versions)
+  fallback_model: "sonnet",   # Fallback when primary model overloaded  
   max_turns: 10,              # Maximum conversation turns
   system_prompt: "Custom...", # Override system prompt
   output_format: :stream_json,# Output format
@@ -368,13 +370,13 @@ Configure requests with `ClaudeCodeSDK.Options` or use smart presets:
 # Smart presets with OptionBuilder
 alias ClaudeCodeSDK.OptionBuilder
 
-# Development: permissive settings, verbose logging
+# Development: permissive settings, verbose logging, sonnet model (cost-effective)
 options = OptionBuilder.build_development_options()
 
-# Production: restricted settings, minimal tools
+# Production: restricted settings, opus model with sonnet fallback (high-quality + reliable)
 options = OptionBuilder.build_production_options()
 
-# Analysis: read-only tools for code analysis
+# Analysis: read-only tools, opus model (best capability for code review)
 options = OptionBuilder.build_analysis_options()
 
 # Chat: simple conversations
@@ -384,7 +386,7 @@ options = OptionBuilder.build_chat_options()
 options = OptionBuilder.for_environment()
 
 # Custom combinations
-options = OptionBuilder.merge(:development, %{max_turns: 5})
+options = OptionBuilder.merge(:development, %{max_turns: 5, model: "opus"})
 ```
 
 ### Message Types
@@ -595,6 +597,52 @@ Comprehensive debugging and performance analysis:
 - `run_diagnostics/0` - Full environment health check
 - `benchmark/3` - Performance testing with statistics
 - `analyze_messages/1` - Extract insights from message streams
+
+## Model Selection & Cost Control
+
+The SDK supports programmatic model selection for cost optimization and performance tuning:
+
+### 💰 **Cost Comparison**
+- **Sonnet**: ~$0.01 per query (fast, cost-effective)
+- **Opus**: ~$0.26 per query (highest quality, 25x more expensive)
+
+### 🎯 **Smart Model Usage**
+
+```elixir
+# Cost-effective development workflow
+cheap_options = %ClaudeCodeSDK.Options{model: "sonnet"}
+ClaudeCodeSDK.query("Fix this typo", cheap_options)
+
+# High-quality production analysis  
+expensive_options = %ClaudeCodeSDK.Options{model: "opus"}
+ClaudeCodeSDK.query("Analyze entire codebase architecture", expensive_options)
+
+# Production reliability with fallback
+production_options = %ClaudeCodeSDK.Options{
+  model: "opus",
+  fallback_model: "sonnet"  # Fallback when opus overloaded
+}
+
+```
+
+### 🔧 **Preset Integration**
+
+OptionBuilder presets automatically include appropriate model selections:
+
+```elixir
+# Development preset uses sonnet (cost-effective)
+dev_options = OptionBuilder.build_development_options()
+# dev_options.model == "sonnet"
+
+# Production preset uses opus with fallback (reliable + high-quality)  
+prod_options = OptionBuilder.build_production_options()
+# prod_options.model == "opus"
+# prod_options.fallback_model == "sonnet"
+
+# Analysis preset uses opus (best capability)
+analysis_options = OptionBuilder.build_analysis_options()
+# analysis_options.model == "opus"
+```
 
 ## Main Use Cases
 

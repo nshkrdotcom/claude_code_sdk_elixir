@@ -187,6 +187,8 @@ end)
 | `--mcp-config` | `:mcp_config` | `String.t()` | `mcp_config: "/path/to/config.json"` |
 | `--permission-prompt-tool` | `:permission_prompt_tool` | `String.t()` | `permission_prompt_tool: "mcp__auth__approve"` |
 | `--permission-mode` | `:permission_mode` | `:default \| :accept_edits \| :bypass_permissions \| :plan` | `permission_mode: :accept_edits` |
+| `--model` | `:model` | `String.t()` | `model: "sonnet"` or `model: "opus"` |
+| `--fallback-model` | `:fallback_model` | `String.t()` | `fallback_model: "sonnet"` |
 | `--verbose` | `:verbose` | `boolean()` | `verbose: true` |
 | `--continue` | `continue/2` function | - | `ClaudeCodeSDK.continue("new prompt")` |
 | `--resume` | `resume/3` function | - | `ClaudeCodeSDK.resume(session_id, "prompt")` |
@@ -206,6 +208,14 @@ end)
 | **Text** | `claude -p "prompt"` | `%Options{output_format: :text}` (default) |
 | **JSON** | `claude -p "prompt" --output-format json` | `%Options{output_format: :json}` |
 | **Stream JSON** | `claude -p "prompt" --output-format stream-json` | `%Options{output_format: :stream_json}` |
+
+### Model Selection Comparison
+
+| **Model** | **CLI Example** | **Elixir Usage** | **Cost** | **Use Case** |
+|-----------|-----------------|------------------|----------|--------------|
+| **Sonnet** | `claude -p "prompt" --model sonnet` | `%Options{model: "sonnet"}` | ~$0.01 | Development, simple tasks |
+| **Opus** | `claude -p "prompt" --model opus` | `%Options{model: "opus"}` | ~$0.26 | Production, complex analysis |
+| **With Fallback** | `claude -p "prompt" --model opus --fallback-model sonnet` | `%Options{model: "opus", fallback_model: "sonnet"}` | Primary/fallback | Production reliability |
 
 ---
 

@@ -75,6 +75,7 @@ defmodule ClaudeCodeSDK.OptionBuilder do
   @spec build_development_options() :: Options.t()
   def build_development_options do
     %Options{
+      model: "sonnet",
       max_turns: 10,
       verbose: true,
       output_format: :stream_json,
@@ -139,6 +140,8 @@ defmodule ClaudeCodeSDK.OptionBuilder do
   @spec build_production_options() :: Options.t()
   def build_production_options do
     %Options{
+      model: "opus",
+      fallback_model: "sonnet",
       max_turns: 3,
       verbose: false,
       output_format: :stream_json,
@@ -171,6 +174,7 @@ defmodule ClaudeCodeSDK.OptionBuilder do
   @spec build_analysis_options() :: Options.t()
   def build_analysis_options do
     %Options{
+      model: "opus",
       max_turns: 7,
       output_format: :stream_json,
       allowed_tools: ["Read", "Grep", "Find"],

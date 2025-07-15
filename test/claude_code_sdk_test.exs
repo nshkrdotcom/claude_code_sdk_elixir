@@ -88,4 +88,100 @@ defmodule ClaudeCodeSDKTest do
       assert is_function(result, 2)
     end
   end
+
+  describe "model selection integration" do
+    test "query with sonnet model (mock mode)" do
+      Mock.set_response("test sonnet", [
+        %{
+          "type" => "assistant",
+          "message" => %{"content" => "Hello from Sonnet!"}
+        },
+        %{
+          "type" => "result",
+          "subtype" => "success",
+          "total_cost_usd" => 0.01,
+          "duration_ms" => 100,
+          "duration_api_ms" => 50,
+          "num_turns" => 1,
+          "is_error" => false,
+          "session_id" => "test-123"
+        }
+      ])
+
+      options = %Options{model: "sonnet"}
+      messages = ClaudeCodeSDK.query("test sonnet", options) |> Enum.to_list()
+
+      # Should receive mock response
+      assert length(messages) >= 1
+      assistant_msg = Enum.find(messages, &(&1.type == :assistant))
+      result_msg = Enum.find(messages, &(&1.type == :result))
+
+      assert assistant_msg != nil
+      assert result_msg != nil
+      assert result_msg.subtype == :success
+    end
+
+    test "query with opus model (mock mode)" do
+      Mock.set_response("test opus", [
+        %{
+          "type" => "assistant",
+          "message" => %{"content" => "Hello from Opus!"}
+        },
+        %{
+          "type" => "result",
+          "subtype" => "success",
+          "total_cost_usd" => 0.26,
+          "duration_ms" => 200,
+          "duration_api_ms" => 100,
+          "num_turns" => 1,
+          "is_error" => false,
+          "session_id" => "test-456"
+        }
+      ])
+
+      options = %Options{model: "opus"}
+      messages = ClaudeCodeSDK.query("test opus", options) |> Enum.to_list()
+
+      # Should receive mock response
+      assert length(messages) >= 1
+      assistant_msg = Enum.find(messages, &(&1.type == :assistant))
+      result_msg = Enum.find(messages, &(&1.type == :result))
+
+      assert assistant_msg != nil
+      assert result_msg != nil
+      assert result_msg.subtype == :success
+    end
+
+    test "preset options include correct models" do
+      alias ClaudeCodeSDK.OptionBuilder
+
+      # Development should use sonnet
+      dev_options = OptionBuilder.build_development_options()
+      assert dev_options.model == "sonnet"
+
+      # Production should use opus with sonnet fallback
+      prod_options = OptionBuilder.build_production_options()
+      assert prod_options.model == "opus"
+      assert prod_options.fallback_model == "sonnet"
+
+      # Analysis should use opus
+      analysis_options = OptionBuilder.build_analysis_options()
+      assert analysis_options.model == "opus"
+    end
+
+    test "model selection preserves other options" do
+      options = %Options{
+        model: "sonnet",
+        max_turns: 5,
+        verbose: true,
+        system_prompt: "Test"
+      }
+
+      # Model selection shouldn't affect other fields
+      assert options.max_turns == 5
+      assert options.verbose == true
+      assert options.system_prompt == "Test"
+      assert options.model == "sonnet"
+    end
+  end
 end

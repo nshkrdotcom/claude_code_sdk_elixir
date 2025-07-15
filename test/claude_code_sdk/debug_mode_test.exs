@@ -280,15 +280,18 @@ defmodule ClaudeCodeSDK.DebugModeTest do
   end
 
   describe "edge cases" do
-    @tag :skip
-    test "debug_query handles nil options (skipped - calls AuthChecker)" do
+    test "debug_query handles nil options" do
       output =
         ExUnit.CaptureIO.capture_io(fn ->
           messages = DebugMode.debug_query("test", nil)
           assert is_list(messages)
         end)
 
-      assert String.contains?(output, "Options: nil")
+      # When nil is passed, build_debug_options creates a default Options struct
+      assert String.contains?(
+               output,
+               "Options: max_turns: default, tools: default, mode: default"
+             )
     end
 
     test "analyze_messages handles mixed content formats" do

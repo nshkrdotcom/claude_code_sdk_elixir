@@ -15,6 +15,11 @@ defmodule ClaudeCodeSDK.OptionBuilderTest do
       assert "Write" in options.allowed_tools
       assert "Edit" in options.allowed_tools
     end
+
+    test "includes sonnet model for cost-effective development" do
+      options = OptionBuilder.build_development_options()
+      assert options.model == "sonnet"
+    end
   end
 
   describe "build_staging_options/0" do
@@ -44,6 +49,12 @@ defmodule ClaudeCodeSDK.OptionBuilderTest do
       assert "Edit" in options.disallowed_tools
       assert options.output_format == :stream_json
     end
+
+    test "includes opus model with sonnet fallback for production reliability" do
+      options = OptionBuilder.build_production_options()
+      assert options.model == "opus"
+      assert options.fallback_model == "sonnet"
+    end
   end
 
   describe "build_analysis_options/0" do
@@ -58,6 +69,11 @@ defmodule ClaudeCodeSDK.OptionBuilderTest do
       assert "Edit" in options.disallowed_tools
       assert "Bash" in options.disallowed_tools
       assert options.permission_mode == :plan
+    end
+
+    test "includes opus model for best analysis capability" do
+      options = OptionBuilder.build_analysis_options()
+      assert options.model == "opus"
     end
   end
 

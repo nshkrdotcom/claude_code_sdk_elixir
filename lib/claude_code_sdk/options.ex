@@ -23,6 +23,8 @@ defmodule ClaudeCodeSDK.Options do
   - `path_to_claude_code_executable` - Path to Claude Code CLI (string)
   - `abort_ref` - Reference for aborting requests (reference)
   - `async` - Force async streaming mode (boolean)
+  - `model` - Model to use for the session (string, e.g., "sonnet", "opus", "claude-3-5-sonnet-20241022")
+  - `fallback_model` - Fallback model when primary model is overloaded (string)
 
   ## Examples
 
@@ -39,6 +41,18 @@ defmodule ClaudeCodeSDK.Options do
         allowed_tools: ["editor", "bash"],
         permission_mode: :accept_edits,
         cwd: "/path/to/project"
+      }
+
+      # Model selection for cost optimization
+      %ClaudeCodeSDK.Options{
+        model: "sonnet",          # Fast and cost-effective ($0.01)
+        max_turns: 5
+      }
+
+      %ClaudeCodeSDK.Options{
+        model: "opus",            # Highest quality ($0.26)
+        fallback_model: "sonnet", # Fallback when overloaded
+        max_turns: 3
       }
 
   """
@@ -60,11 +74,14 @@ defmodule ClaudeCodeSDK.Options do
     :path_to_claude_code_executable,
     :abort_ref,
     :async,
-    :timeout_ms
+    :timeout_ms,
+    :model,
+    :fallback_model
   ]
 
   @type output_format :: :text | :json | :stream_json
   @type permission_mode :: :default | :accept_edits | :bypass_permissions | :plan
+  @type model_choice :: String.t() | nil
 
   @type t :: %__MODULE__{
           max_turns: integer() | nil,
@@ -83,7 +100,9 @@ defmodule ClaudeCodeSDK.Options do
           path_to_claude_code_executable: String.t() | nil,
           abort_ref: reference() | nil,
           async: boolean() | nil,
-          timeout_ms: integer() | nil
+          timeout_ms: integer() | nil,
+          model: model_choice() | nil,
+          fallback_model: model_choice() | nil
         }
 
   @doc """
@@ -144,6 +163,8 @@ defmodule ClaudeCodeSDK.Options do
     |> add_mcp_config_args(options)
     |> add_permission_prompt_tool_args(options)
     |> add_permission_mode_args(options)
+    |> add_model_args(options)
+    |> add_fallback_model_args(options)
     |> add_verbose_args(options)
   end
 
@@ -212,6 +233,14 @@ defmodule ClaudeCodeSDK.Options do
 
     args ++ ["--permission-mode", mode_string]
   end
+
+  defp add_model_args(args, %{model: nil}), do: args
+  defp add_model_args(args, %{model: model}), do: args ++ ["--model", model]
+
+  defp add_fallback_model_args(args, %{fallback_model: nil}), do: args
+
+  defp add_fallback_model_args(args, %{fallback_model: model}),
+    do: args ++ ["--fallback-model", model]
 
   defp add_verbose_args(args, %{verbose: true}), do: args ++ ["--verbose"]
   defp add_verbose_args(args, _), do: args
