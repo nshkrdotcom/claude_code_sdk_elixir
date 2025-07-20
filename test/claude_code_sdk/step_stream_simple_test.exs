@@ -4,7 +4,7 @@ defmodule ClaudeCodeSDK.StepStreamSimpleTest do
   alias ClaudeCodeSDK.{StepStream, StepDetector, Message, Step}
 
   # Test helper to create test messages
-  defp create_test_message(type \\ :assistant, content \\ "test content") do
+  defp create_test_message(type, content) do
     %Message{
       type: type,
       data: %{
@@ -15,7 +15,7 @@ defmodule ClaudeCodeSDK.StepStreamSimpleTest do
   end
 
   # Test helper to create a list of test messages
-  defp create_test_messages(count \\ 3) do
+  defp create_test_messages(count) do
     for i <- 1..count do
       create_test_message(:assistant, "Message #{i}")
     end

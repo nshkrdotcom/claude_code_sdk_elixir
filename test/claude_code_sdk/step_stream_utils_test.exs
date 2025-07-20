@@ -1,10 +1,10 @@
 defmodule ClaudeCodeSDK.StepStreamUtilsTest do
   use ExUnit.Case, async: true
 
-  alias ClaudeCodeSDK.{StepStreamUtils, Step, Message}
+  alias ClaudeCodeSDK.{StepStreamUtils, Step}
 
   # Test helper to create test steps
-  defp create_test_step(opts \\ []) do
+  defp create_test_step(opts) do
     defaults = [
       type: :unknown,
       description: "Test step",

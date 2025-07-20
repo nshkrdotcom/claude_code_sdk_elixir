@@ -1,22 +1,8 @@
 defmodule ClaudeCodeSDK.StepBufferTest do
   use ExUnit.Case, async: true
 
-  alias ClaudeCodeSDK.{StepBuffer, StepDetector, Message, Step}
+  alias ClaudeCodeSDK.{StepBuffer, StepDetector, Message}
 
-  # Test helper to create mock step detector
-  defp create_mock_detector(responses \\ []) do
-    %{
-      responses: responses,
-      call_count: 0
-    }
-  end
-
-  # Mock StepDetector.analyze_message/3
-  defp mock_analyze_message(detector, _message, _buffer) do
-    response = Enum.at(detector.responses, detector.call_count, {:step_continue, nil})
-    # In a real implementation, we'd update the detector state
-    response
-  end
 
   # Test helper to create test messages
   defp create_test_message(type \\ :assistant, content \\ "test content") do
@@ -197,7 +183,7 @@ defmodule ClaudeCodeSDK.StepBufferTest do
         )
 
       # Add many messages to exceed memory limit
-      for i <- 1..10 do
+      for _i <- 1..10 do
         message = create_test_message(:assistant, String.duplicate("x", 1000))
         StepBuffer.add_message(buffer, message)
       end
@@ -401,7 +387,7 @@ defmodule ClaudeCodeSDK.StepBufferTest do
       StepBuffer.stop(buffer)
 
       # Should receive the flushed step
-      assert_receive {:step_emitted, step}, 1000
+      assert_receive {:step_emitted, _step}, 1000
 
       refute Process.alive?(buffer)
     end
