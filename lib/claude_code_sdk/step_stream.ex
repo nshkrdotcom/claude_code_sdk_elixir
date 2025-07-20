@@ -34,7 +34,7 @@ defmodule ClaudeCodeSDK.StepStream do
 
   """
 
-  alias ClaudeCodeSDK.{StepBuffer, StepDetector, Message, Step}
+  alias ClaudeCodeSDK.{StepDetector, Message, Step}
 
   @type transform_option ::
           {:step_detector, StepDetector.t()}
@@ -163,12 +163,6 @@ defmodule ClaudeCodeSDK.StepStream do
 
   ## Private Functions
 
-  # Default error handler
-  defp default_error_handler(error, _context) do
-    require Logger
-    Logger.error("StepStream error: #{inspect(error)}")
-  end
-
   ## Utility Functions
 
   @doc """
@@ -259,7 +253,7 @@ defmodule ClaudeCodeSDK.StepStream do
 
   """
   @spec with_timeout(Enumerable.t(), pos_integer(), :error | :complete) :: Enumerable.t()
-  def with_timeout(step_stream, timeout_ms, strategy \\ :error) do
+  def with_timeout(step_stream, _timeout_ms, strategy \\ :error) do
     # Simple timeout implementation - just return the stream as-is for now
     # A proper implementation would need more complex timeout handling
     case strategy do

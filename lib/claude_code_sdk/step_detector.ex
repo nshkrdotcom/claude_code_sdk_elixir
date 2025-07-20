@@ -461,8 +461,10 @@ defmodule ClaudeCodeSDK.StepDetector do
     matching_tools = MapSet.intersection(tool_set, MapSet.new(tools_used))
 
     if MapSet.size(matching_tools) > 0 do
-      # Confidence based on how many tools match
-      confidence = min(MapSet.size(matching_tools) / MapSet.size(tool_set), 1.0) * 0.9
+      # Confidence based on how many tools match, but give bonus for any match
+      match_ratio = MapSet.size(matching_tools) / MapSet.size(tool_set)
+      # Base confidence of 0.7 for any match, plus bonus for more matches
+      confidence = min(0.7 + match_ratio * 0.25, 1.0)
       {:match, confidence}
     else
       :no_match
@@ -484,7 +486,7 @@ defmodule ClaudeCodeSDK.StepDetector do
        when is_function(func, 1) do
     try do
       if func.(context) do
-        {:match, 0.7}
+        {:match, 0.9}
       else
         :no_match
       end

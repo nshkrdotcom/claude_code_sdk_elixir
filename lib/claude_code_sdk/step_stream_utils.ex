@@ -24,7 +24,7 @@ defmodule ClaudeCodeSDK.StepStreamUtils do
 
   """
 
-  alias ClaudeCodeSDK.{Step, Message}
+  alias ClaudeCodeSDK.Step
   require Logger
 
   @type step_stream :: Enumerable.t()
@@ -360,7 +360,7 @@ defmodule ClaudeCodeSDK.StepStreamUtils do
   """
   @spec with_timeout(step_stream(), pos_integer(), :error | :complete | {:default, any()}) ::
           step_stream()
-  def with_timeout(step_stream, timeout_ms, strategy \\ :error) do
+  def with_timeout(step_stream, _timeout_ms, strategy \\ :error) do
     case strategy do
       :error ->
         # For now, just return the stream as-is
