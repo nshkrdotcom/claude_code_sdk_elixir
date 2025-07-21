@@ -195,6 +195,9 @@ defmodule ClaudeCodeSDK.StepPattern do
     %{
       type: :message_content,
       regex: regex,
+      tools: nil,
+      sequence: nil,
+      function: nil,
       options: opts
     }
   end
@@ -218,6 +221,9 @@ defmodule ClaudeCodeSDK.StepPattern do
     %{
       type: :tool_usage,
       tools: tools,
+      regex: nil,
+      sequence: nil,
+      function: nil,
       options: opts
     }
   end
@@ -241,6 +247,9 @@ defmodule ClaudeCodeSDK.StepPattern do
     %{
       type: :message_sequence,
       sequence: sequence,
+      tools: nil,
+      regex: nil,
+      function: nil,
       options: opts
     }
   end
@@ -265,6 +274,9 @@ defmodule ClaudeCodeSDK.StepPattern do
     %{
       type: :custom_function,
       function: function,
+      tools: nil,
+      regex: nil,
+      sequence: nil,
       options: opts
     }
   end
@@ -288,6 +300,11 @@ defmodule ClaudeCodeSDK.StepPattern do
     %{
       type: :content_regex,
       regex: regex,
+      min_tools: nil,
+      max_tools: nil,
+      min_messages: nil,
+      max_messages: nil,
+      function: nil,
       options: opts
     }
   end
@@ -314,8 +331,12 @@ defmodule ClaudeCodeSDK.StepPattern do
   def tool_validator(opts \\ []) do
     %{
       type: :tool_sequence,
+      regex: nil,
       min_tools: Keyword.get(opts, :min_tools),
       max_tools: Keyword.get(opts, :max_tools),
+      min_messages: nil,
+      max_messages: nil,
+      function: nil,
       options: Keyword.get(opts, :options, %{})
     }
   end
@@ -342,8 +363,12 @@ defmodule ClaudeCodeSDK.StepPattern do
   def message_validator(opts \\ []) do
     %{
       type: :message_count,
+      regex: nil,
+      min_tools: nil,
+      max_tools: nil,
       min_messages: Keyword.get(opts, :min_messages),
       max_messages: Keyword.get(opts, :max_messages),
+      function: nil,
       options: Keyword.get(opts, :options, %{})
     }
   end
@@ -367,6 +392,11 @@ defmodule ClaudeCodeSDK.StepPattern do
   def custom_validator(function, opts \\ %{}) when is_function(function, 1) do
     %{
       type: :custom_function,
+      regex: nil,
+      min_tools: nil,
+      max_tools: nil,
+      min_messages: nil,
+      max_messages: nil,
       function: function,
       options: opts
     }

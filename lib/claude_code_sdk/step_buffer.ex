@@ -344,10 +344,6 @@ defmodule ClaudeCodeSDK.StepBuffer do
 
         {:step_boundary, step_type, metadata} ->
           handle_step_boundary(message, step_type, metadata, state)
-
-        _ ->
-          # Default to continuing current step for any other result
-          handle_step_continue(message, state)
       end
     rescue
       error ->

@@ -42,7 +42,8 @@ defmodule ClaudeCodeSDK.StepDetectionBenchmark do
           accuracy_percentage: float(),
           false_positives: integer(),
           false_negatives: integer(),
-          confusion_matrix: map()
+          confusion_matrix: map(),
+          detailed_results: list()
         }
 
   @doc """

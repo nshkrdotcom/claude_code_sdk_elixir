@@ -3,7 +3,6 @@ defmodule ClaudeCodeSDK.StepBufferTest do
 
   alias ClaudeCodeSDK.{StepBuffer, StepDetector, Message}
 
-
   # Test helper to create test messages
   defp create_test_message(type \\ :assistant, content \\ "test content") do
     %Message{

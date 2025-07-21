@@ -104,6 +104,7 @@ defmodule ClaudeCodeSDK.Step do
           | :rejected
 
   @type intervention :: %{
+          id: String.t(),
           type: :guidance | :correction | :context,
           content: String.t(),
           applied_at: DateTime.t()
