@@ -57,6 +57,7 @@ defmodule ClaudeCodeSDK.Step do
 
   alias ClaudeCodeSDK.Message
 
+  @derive Jason.Encoder
   defstruct [
     # Unique step identifier
     :id,

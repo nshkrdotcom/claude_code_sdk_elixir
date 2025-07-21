@@ -49,6 +49,7 @@ defmodule ClaudeCodeSDK.Message do
 
   """
 
+  @derive Jason.Encoder
   defstruct [:type, :subtype, :data, :raw]
 
   @type message_type :: :assistant | :user | :result | :system
